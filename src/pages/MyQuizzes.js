@@ -7,11 +7,13 @@ function MyQuizzes() {
   const [quizzes, setQuizzes] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
   const limit = 12;
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const fetchMyQuizzes = async (pageNum = 1) => {
     try {
+      setLoading(true);
       const res = await getMyQuizzes(pageNum, limit);
       const data = res?.data;
       setQuizzes(data?.results || []);
@@ -19,6 +21,8 @@ function MyQuizzes() {
       setTotalPages(Math.ceil(total / limit));
     } catch (err) {
       console.error("Failed to load your quizzes", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,6 +37,7 @@ function MyQuizzes() {
   const handleNext = () => {
     if (page < totalPages) setPage(page + 1);
   };
+
   const handleBack = () => {
     navigate(-1);
   };
@@ -45,11 +50,35 @@ function MyQuizzes() {
       >
         ← Back
       </button>
+
       <h1 className="text-2xl font-bold text-indigo-700 mb-4">
         🧑‍💻 Your Created Quizzes
       </h1>
 
-      {quizzes.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <svg
+            className="animate-spin h-8 w-8 text-indigo-600"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
+          </svg>
+        </div>
+      ) : quizzes.length === 0 ? (
         <p className="text-gray-600">You haven't created any quizzes yet.</p>
       ) : (
         <>

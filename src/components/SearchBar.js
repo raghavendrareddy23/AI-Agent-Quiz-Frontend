@@ -154,7 +154,7 @@ function SearchBar() {
               className="p-2 hover:bg-indigo-100 cursor-pointer flex justify-between items-center"
             >
               <span onClick={() => handleSelect(tech, "existing")}>
-                {tech} (Go to existing)
+                {tech}
               </span>
               <button
                 onClick={() => handleSelect(tech, "new")}

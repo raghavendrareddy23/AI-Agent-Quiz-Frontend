@@ -31,7 +31,7 @@ function QuizResult() {
   }, [id, navigate, state]);
 
   const handleCopyScorecard = () => {
-    const resultText = `🎯 Quiz: ${quiz.title}\n📊 Score: ${state.score}/${state.total}\nTry it yourself at: [your-app-link]/quiz/${id}`;
+    const resultText = `🎯 Quiz: ${quiz.title}\n📊 Score: ${state.score}/${state.total}\nTry it yourself at: https://ai-agent-quiz.netlify.app/quiz/${id}`;
     navigator.clipboard.writeText(resultText);
     toast.success("Scorecard copied to clipboard!");
   };

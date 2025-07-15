@@ -10,12 +10,14 @@ function PublicQuizzes() {
   const [filterTech, setFilterTech] = useState("All");
   const [page, setPage] = useState(1);
   const [techOptions, setTechOptions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const limit = 12;
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAll = async () => {
+      setLoading(true);
       try {
         const first = await getPublicQuizzes(1, 1);
         const total = first?.data?.total_results || 100;
@@ -28,6 +30,8 @@ function PublicQuizzes() {
         setTechOptions(["All", ...new Set(all.map((q) => q.technology))]);
       } catch (err) {
         console.error("Failed to load quizzes", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -52,7 +56,7 @@ function PublicQuizzes() {
     }
 
     setFilteredQuizzes(filtered);
-    setPage(1); 
+    setPage(1);
   }, [searchTerm, filterTech, allQuizzes]);
 
   const totalPages = Math.ceil(filteredQuizzes.length / limit);
@@ -97,7 +101,31 @@ function PublicQuizzes() {
         </select>
       </div>
 
-      {paginated.length === 0 ? (
+      {/* Loader or Quizzes */}
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <svg
+            className="animate-spin h-8 w-8 text-indigo-600"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
+          </svg>
+        </div>
+      ) : paginated.length === 0 ? (
         <p className="text-gray-600">No public quizzes found.</p>
       ) : (
         <>

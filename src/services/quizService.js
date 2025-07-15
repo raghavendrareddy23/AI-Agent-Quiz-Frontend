@@ -21,7 +21,7 @@ export const getMyQuizzes = (page, limit) =>
   axios.get(`${API}/user?page=${page}&limit=${limit}`, { headers: authHeader() });
 
 export const getQuizById = (id) =>
-  axios.get(`${API}/${id}`, { headers: authHeader() });
+  axios.get(`${API}/${id}`);
 
 export const recordQuizAttempt = (attemptData) =>
   axios.post(`${API}/submit`, attemptData, { headers: authHeader() });

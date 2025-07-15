@@ -7,31 +7,39 @@ function Home() {
   const [quizzes, setQuizzes] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
   const limit = 12;
   const navigate = useNavigate();
 
-  const fetchQuizzes = async (pageNum = 1) => {
-    try {
-      const res = await getPublicQuizzes(pageNum, limit);
-      const data = res?.data;
-      setQuizzes(data?.results || []);
-      setTotalPages(Math.ceil((data?.total_results || 0) / limit));
-    } catch (error) {
-      console.error("Error fetching quizzes:", error);
-    }
-  };
-
   useEffect(() => {
+    let isMounted = true;
+
+    const fetchQuizzes = async (pageNum = 1) => {
+      try {
+        setLoading(true);
+        const res = await getPublicQuizzes(pageNum, limit);
+        const data = res?.data;
+        if (isMounted) {
+          setQuizzes(data?.results || []);
+          setTotalPages(Math.ceil((data?.total_results || 0) / limit));
+        }
+      } catch (error) {
+        console.error("Error fetching quizzes:", error);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
     fetchQuizzes(page);
+
+    return () => {
+      isMounted = false; // Cleanup on unmount
+    };
   }, [page]);
 
   const handleCreateQuiz = () => {
-    const isLoggedIn = localStorage.getItem("token"); // or use auth context
-    if (!isLoggedIn) {
-      navigate("/login");
-    } else {
-      navigate("/dashboard/create");
-    }
+    const isLoggedIn = localStorage.getItem("token");
+    navigate(isLoggedIn ? "/dashboard/create" : "/login");
   };
 
   return (
@@ -41,8 +49,7 @@ function Home() {
           Welcome to AI Agent Quiz!
         </h1>
         <p className="text-lg text-gray-600">
-          Practice, Learn & Improve with curated AI-generated quizzes across
-          technologies.
+          Practice, Learn & Improve with curated AI-generated quizzes across technologies.
         </p>
       </div>
 
@@ -60,9 +67,7 @@ function Home() {
 
       <div className="mb-10">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">
-            Latest Public Quizzes
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800">Latest Public Quizzes</h2>
           <Link
             to="/quizzes/public"
             className="text-indigo-600 hover:underline text-sm font-medium"
@@ -71,7 +76,30 @@ function Home() {
           </Link>
         </div>
 
-        {quizzes.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center h-40">
+            <svg
+              className="animate-spin h-8 w-8 text-indigo-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+          </div>
+        ) : quizzes.length === 0 ? (
           <p className="text-gray-500">No quizzes available at the moment.</p>
         ) : (
           <>
@@ -98,9 +126,7 @@ function Home() {
               </span>
               <button
                 disabled={page === totalPages}
-                onClick={() =>
-                  setPage((prev) => Math.min(prev + 1, totalPages))
-                }
+                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
                 className={`px-3 py-1 rounded ${
                   page === totalPages
                     ? "bg-gray-300"

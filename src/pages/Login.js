@@ -3,6 +3,7 @@ import { login as loginAPI, getMe } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
+import { recordQuizAttempt } from "../services/quizService";
 
 function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -16,6 +17,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const formData = new URLSearchParams();
       formData.append("username", form.username);
@@ -26,7 +28,30 @@ function Login() {
       login(userRes.data.username, data.access_token);
 
       toast.success("Login successful!");
-      navigate("/dashboard");
+
+      const pending = localStorage.getItem("pending_attempt");
+      const redirectTo = localStorage.getItem("redirect_after_login");
+
+      if (pending && redirectTo) {
+        const parsed = JSON.parse(pending);
+        await recordQuizAttempt(parsed);
+        toast.success("Quiz submitted successfully!");
+
+        localStorage.removeItem("pending_attempt");
+        localStorage.removeItem("redirect_after_login");
+
+        navigate(redirectTo, {
+          state: {
+            score: parsed.score,
+            total: parsed.total_questions,
+            answers: Object.fromEntries(
+              parsed.answers.map((a) => [a.question_id, a.selected_option_id])
+            ),
+          },
+        });
+      } else {
+        navigate("/dashboard");
+      }
     } catch {
       toast.error("Invalid credentials");
     } finally {
