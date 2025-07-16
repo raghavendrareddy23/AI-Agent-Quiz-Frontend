@@ -19,7 +19,7 @@ function Signup() {
       toast.success("Signup successful! Please login.");
       navigate("/login");
     } catch {
-      toast.error("Signup failed");
+      toast.error("Signup failed, Password must be atleast 8 charecters");
     } finally {
       setLoading(false);
     }
