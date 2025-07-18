@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://ai-agent-quiz-platform.onrender.com/api/v1/auth';
+const API_URL = 'https://ai-agent-quiz-platform-173786980361.europe-west1.run.app/api/v1/auth';
 
 export const register = (data) => axios.post(`${API_URL}/register`, data);
 

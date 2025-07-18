@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "https://ai-agent-quiz-platform.onrender.com/api/v1/ai";
+const API = "https://ai-agent-quiz-platform-173786980361.europe-west1.run.app/api/v1/ai";
 const authHeader = () => ({
   Authorization: `Bearer ${sessionStorage.getItem("token")}`,
 });
